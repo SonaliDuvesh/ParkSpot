@@ -1,0 +1,355 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - ParkSpot{% endblock %}
+{% block page_title %}Administrator Control Center{% endblock %}
+{% block breadcrumb %}Admin Dashboard{% endblock %}
+
+{% block content %}
+
+<div class="card-custom bg-gradient-dark text-white mb-4 overflow-hidden position-relative border-0 shadow-lg"
+    style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);">
+    <div class="card-body-custom p-4">
+        <div class="row align-items-center">
+            <div class="col-12 col-lg-8 mb-3 mb-lg-0">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="badge bg-warning text-dark font-bold px-3 py-1 rounded-pill"><i
+                            class="fas fa-crown me-1"></i>Admin Mode</span>
+                    <span class="badge bg-success bg-opacity-25 text-success font-semibold px-3 py-1 rounded-pill"><i
+                            class="fas fa-signal me-1"></i> Live System Online</span>
+                </div>
+                <h3 class="fw-bold mb-1 text-white">Multi-Facility Parking Network</h3>
+                <p class="text-white-50 mb-0">Managing <strong>{{ total_lots }}</strong> parking facilities across your
+                    network. Monitoring capacity, occupancy status, and revenue calculations in real time.</p>
+            </div>
+            <div class="col-12 col-lg-4 text-lg-end">
+                <div class="d-flex flex-wrap gap-2 justify-content-lg-end">
+                    <a href="{{ url_for('admin_parking_lots') }}" class="btn btn-primary btn-sm px-3 py-2 rounded-3">
+                        <i class="fas fa-plus-circle me-1"></i> Add Parking Lot
+                    </a>
+                    <a href="{{ url_for('admin_users') }}"
+                        class="btn btn-light btn-sm px-3 py-2 rounded-3 text-dark font-semibold">
+                        <i class="fas fa-users me-1"></i> View Registered Users
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="stat-card stat-primary h-100">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="stat-label text-uppercase fs-8 tracking-wider">Active Facilities</span>
+                    <h2 class="stat-value my-1">{{ total_lots }}</h2>
+                    <span class="fs-8 text-muted"><i class="fas fa-building text-primary me-1"></i> Parking
+                        Network</span>
+                </div>
+                <div class="stat-icon bg-primary-subtle text-primary rounded-4 p-3">
+                    <i class="fas fa-city fa-2x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="stat-card stat-success h-100">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="stat-label text-uppercase fs-8 tracking-wider">Total Slots</span>
+                    <h2 class="stat-value my-1">{{ total_spots }}</h2>
+                    <span class="fs-8 text-success font-semibold"><i class="fas fa-check-circle me-1"></i> {{
+                        available_spots }} Available</span>
+                </div>
+                <div class="stat-icon bg-success-subtle text-success rounded-4 p-3">
+                    <i class="fas fa-th-large fa-2x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="stat-card stat-danger h-100">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="stat-label text-uppercase fs-8 tracking-wider">Occupied Spots</span>
+                    <h2 class="stat-value my-1">{{ occupied_spots }}</h2>
+                    <span class="fs-8 text-danger font-semibold"><i class="fas fa-car-side me-1"></i> {{ occ_pct }}%
+                        Network Occupancy</span>
+                </div>
+                <div class="stat-icon bg-danger-subtle text-danger rounded-4 p-3">
+                    <i class="fas fa-car fa-2x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="stat-card stat-warning h-100">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="stat-label text-uppercase fs-8 tracking-wider">Registered Users</span>
+                    <h2 class="stat-value my-1">{{ total_users }}</h2>
+                    <span class="fs-8 text-warning font-semibold"><i class="fas fa-users me-1"></i> Active
+                        Customers</span>
+                </div>
+                <div class="stat-icon bg-warning-subtle text-warning rounded-4 p-3">
+                    <i class="fas fa-users fa-2x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card-custom">
+            <div class="card-header-custom d-flex align-items-center justify-content-between">
+                <h5 class="m-0 font-bold"><i class="fas fa-layer-group text-primary me-2"></i>Parking Facilities Network
+                </h5>
+                <a href="{{ url_for('admin_parking_lots') }}" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                    <i class="fas fa-cog me-1"></i> Manage Facilities
+                </a>
+            </div>
+            <div class="card-body-custom">
+                <div class="row g-4">
+                    {% for lot in lots_summary %}
+                    {% set total_sp = lot.total_spots if lot.total_spots > 0 else 1 %}
+                    {% set occ_perc = ((lot.occupied_spots / total_sp) * 100)|round|int %}
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <div
+                            class="border rounded-4 p-3 shadow-sm bg-white hover-shadow transition-all position-relative">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <h6 class="fw-bold mb-0 text-dark text-truncate" style="max-width: 180px;">{{
+                                    lot.prime_location_name }}</h6>
+                                <span
+                                    class="badge bg-primary-subtle text-primary rounded-pill px-3 py-1 fs-8 fw-semibold">₹{{
+                                    lot.price }}/hr</span>
+                            </div>
+
+                            <p class="text-muted fs-8 mb-3 text-truncate"><i
+                                    class="fas fa-map-marker-alt text-secondary me-1"></i>{{ lot.address }} ({{
+                                lot.pin_code }})</p>
+
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between fs-8 fw-semibold mb-1">
+                                    <span>Capacity Status</span>
+                                    <span>{{ lot.occupied_spots }} / {{ lot.total_spots }} Spots ({{ occ_perc
+                                        }}%)</span>
+                                </div>
+                                <div class="progress rounded-pill" style="height: 8px;">
+                                    <div class="progress-bar {% if occ_perc > 85 %}bg-danger{% elif occ_perc > 60 %}bg-warning{% else %}bg-success{% endif %}"
+                                        role="progressbar" style="width: {{ occ_perc }}%;"></div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex align-items-center justify-content-between pt-2 border-top">
+                                <span class="fs-8 text-success font-semibold">
+                                    <i class="fas fa-check-circle me-1"></i> {{ lot.available_spots }} Free Spots
+                                </span>
+                                <a href="{{ url_for('admin_parking_lot_details', lot_id=lot.id) }}"
+                                    class="btn btn-sm btn-outline-secondary rounded-pill px-3 fs-8 fw-semibold">
+                                    <i class="fas fa-eye me-1"></i> View Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-12 col-lg-6">
+        <div class="card-custom h-100">
+            <div class="card-header-custom d-flex align-items-center justify-content-between">
+                <h5 class="m-0 font-bold"><i class="fas fa-users text-success me-2"></i>Recent Registered Users</h5>
+                <a href="{{ url_for('admin_users') }}"
+                    class="btn btn-sm btn-success rounded-pill px-3 font-semibold shadow-sm">
+                    <i class="fas fa-list me-1"></i> All Users
+                </a>
+            </div>
+            <div class="card-body-custom">
+                <p class="text-muted fs-8 mb-3">Recently registered customer accounts on ParkSpot platform.</p>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light fs-8">
+                            <tr>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th class="text-end">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="fs-7">
+                            {% for u in registered_users %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="avatar-sm bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold"
+                                            style="width: 32px; height: 32px;">
+                                            {{ u.username[:1].upper() }}
+                                        </div>
+                                        <span class="fw-semibold text-dark">{{ u.username }}</span>
+                                    </div>
+                                </td>
+                                <td class="text-muted fs-8">{{ u.email }}</td>
+                                <td class="text-end">
+                                    <a href="{{ url_for('admin_user_details', user_id=u.id) }}"
+                                        class="btn btn-sm btn-outline-primary rounded-pill px-3 fs-8">
+                                        <i class="fas fa-eye me-1"></i> View
+                                    </a>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="3" class="text-center text-muted py-3 fs-8">No registered users yet.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-lg-6">
+        <div class="card-custom h-100">
+            <div class="card-header-custom d-flex align-items-center justify-content-between">
+                <h5 class="m-0 font-bold"><i class="fas fa-tags text-warning me-2"></i>Active Parking Tariffs</h5>
+                <a href="{{ url_for('settings_page') }}"
+                    class="btn btn-sm btn-warning text-dark font-semibold rounded-pill px-3">
+                    <i class="fas fa-edit me-1"></i> Edit Tariffs
+                </a>
+            </div>
+            <div class="card-body-custom">
+                <p class="text-muted fs-8 mb-3">Configured parking rates per vehicle type across Hourly, Daily, and
+                    Custom Pass duration types.</p>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle text-center">
+                        <thead class="table-light fs-8 text-uppercase">
+                            <tr>
+                                <th class="text-start">Vehicle Type</th>
+                                <th>Hourly</th>
+                                <th>Daily</th>
+                                <th>Pass</th>
+                            </tr>
+                        </thead>
+                        <tbody class="fs-7">
+                            {% for vtype, t in tariffs.items() %}
+                            <tr>
+                                <td class="text-start">
+                                    {% if vtype == 'Car' %}<i class="fas fa-car text-primary me-2"></i>{% endif %}
+                                    {% if vtype in ['Bike', 'Motorcycle', 'Scooter'] %}<i
+                                        class="fas fa-motorcycle text-success me-2"></i>{% endif %}
+                                    {% if vtype == 'SUV' %}<i class="fas fa-truck-monster text-info me-2"></i>{% endif
+                                    %}
+                                    {% if vtype == 'EV' %}<i class="fas fa-charging-station text-warning me-2"></i>{%
+                                    endif %}
+                                    {% if vtype == 'Truck' %}<i class="fas fa-truck text-danger me-2"></i>{% endif %}
+                                    {{ vtype }}
+                                </td>
+                                <td><span class="badge bg-primary-subtle text-primary font-bold">₹{{ t.hourly_rate
+                                        }}/h</span></td>
+                                <td><span class="badge bg-success-subtle text-success font-semibold">₹{{ t.daily_rate
+                                        }}</span></td>
+                                <td><span class="badge bg-info-subtle text-info font-semibold">₹{{ t.custom_rate
+                                        }}</span></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-12 col-lg-6">
+        <div class="card-custom">
+            <div class="card-header-custom">
+                <h5 class="m-0 font-bold"><i class="fas fa-chart-pie text-primary me-2"></i>Global Occupancy
+                    Distribution</h5>
+            </div>
+            <div class="card-body-custom d-flex justify-content-center align-items-center" style="min-height: 260px;">
+                <canvas id="adminOccupancyChart" style="max-height: 240px;"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-lg-6">
+        <div class="card-custom">
+            <div class="card-header-custom">
+                <h5 class="m-0 font-bold"><i class="fas fa-chart-bar text-success me-2"></i>Facility Spot Availability
+                    Comparison</h5>
+            </div>
+            <div class="card-body-custom d-flex justify-content-center align-items-center" style="min-height: 260px;">
+                <canvas id="facilityComparisonChart" style="max-height: 240px;"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const ctx1 = document.getElementById('adminOccupancyChart');
+        if (ctx1) {
+            new Chart(ctx1, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Available', 'Occupied', 'Reserved', 'Maintenance'],
+                    datasets: [{
+                        data: [{{ available_spots }}, {{ occupied_spots }}, {{ reserved_spots }}, { { maintenance_spots } }],
+        backgroundColor: ['#10b981', '#ef4444', '#f59e0b', '#64748b'],
+            borderWidth: 2,
+                borderColor: '#ffffff'
+    }]
+            },
+        options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { position: 'bottom' }
+        }
+    }
+        });
+    }
+
+    const ctx2 = document.getElementById('facilityComparisonChart');
+    if (ctx2) {
+        const lotNames = [{% for lot in lots_summary %} '{{ lot.prime_location_name[:18] }}...', {% endfor %}];
+    const occupiedData = [{% for lot in lots_summary %}{ { lot.occupied_spots } }, {% endfor %}];
+    const availableData = [{% for lot in lots_summary %}{ { lot.available_spots } }, {% endfor %}];
+
+    new Chart(ctx2, {
+        type: 'bar',
+        data: {
+            labels: lotNames,
+            datasets: [
+                { label: 'Occupied', data: occupiedData, backgroundColor: '#ef4444' },
+                { label: 'Available', data: availableData, backgroundColor: '#10b981' }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { stacked: true },
+                y: { stacked: true, beginAtZero: true }
+            },
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Parking History - ParkSpot{% endblock %}
+{% block page_title %}Parking History Log{% endblock %}
+{% block breadcrumb %}History{% endblock %}
+
+{% block content %}
+<div class="card-custom mb-4">
+    <div class="card-body-custom p-3">
+        <div class="row g-3 align-items-center">
+            <div class="col-12 col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
+                    <input type="text" id="tableSearchInput" class="form-control border-start-0"
+                        placeholder="Filter history by vehicle number, slot, or ticket...">
+                </div>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="d-flex gap-2">
+                    <input type="date" class="form-control form-control-sm">
+                    <input type="date" class="form-control form-control-sm">
+                    <button class="btn btn-outline-primary btn-sm rounded-3"><i class="fas fa-filter"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card-custom">
+    <div class="card-body-custom p-0">
+        <div class="table-responsive">
+            <table class="table-custom searchable-table m-0">
+                <thead>
+                    <tr>
+                        <th>Ticket ID</th>
+                        <th>Vehicle Number</th>
+                        <th>Type</th>
+                        <th>Slot</th>
+                        <th>Check-In</th>
+                        <th>Check-Out</th>
+                        <th>Duration</th>
+                        <th>Parking Fee</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for h in history %}
+                    <tr>
+                        <td><span class="fw-bold text-primary">{{ h.ticket_id or 'TKT-9910' }}</span></td>
+                        <td><span class="vehicle-plate-tag">{{ h.vehicle_number }}</span></td>
+                        <td>{{ h.vehicle_type or 'Car' }}</td>
+                        <td><strong class="text-dark">{{ h.spot_number or 'A01' }}</strong></td>
+                        <td class="text-muted fs-8">{{ h.parking_timestamp }}</td>
+                        <td class="text-muted fs-8">{{ h.leaving_timestamp or 'Still Parked' }}</td>
+                        <td class="fw-semibold text-dark">{{ h.duration_str }}</td>
+                        <td>
+                            {% if h.parking_cost %}
+                            <strong class="text-success">₹{{ h.parking_cost|int }}</strong>
+                            {% else %}
+                            <span class="text-muted fs-8">Pending</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if h.status == 'Completed' %}
+                            <span class="badge-status badge-available"><i class="fas fa-check"></i> Completed</span>
+                            {% else %}
+                            <span class="badge-status badge-occupied"><i class="fas fa-clock"></i> Active</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="9" class="text-center py-4 text-muted">No parking history logs recorded yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

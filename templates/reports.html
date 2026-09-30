@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}Reports & Analytics - ParkSpot{% endblock %}
+{% block page_title %}Reports & Parking Analytics{% endblock %}
+{% block breadcrumb %}Reports{% endblock %}
+
+{% block content %}
+
+<div class="row g-3 mb-4">
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div>
+                <div class="stat-label">Parked Today</div>
+                <div class="stat-value text-primary">{{ parked_today }}</div>
+                <div class="stat-subtitle text-muted"><i class="fas fa-sign-in-alt text-primary"></i> Total entries
+                    today</div>
+            </div>
+            <div class="stat-icon-wrapper stat-icon-occupied"><i class="fas fa-car-side"></i></div>
+        </div>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div>
+                <div class="stat-label">Checked Out</div>
+                <div class="stat-value text-success">{{ checked_out_today }}</div>
+                <div class="stat-subtitle text-success"><i class="fas fa-check"></i> Exited today</div>
+            </div>
+            <div class="stat-icon-wrapper stat-icon-available"><i class="fas fa-sign-out-alt"></i></div>
+        </div>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div>
+                <div class="stat-label">Today's Revenue</div>
+                <div class="stat-value text-emerald-600">₹{{ revenue_today }}</div>
+                <div class="stat-subtitle text-muted"><i class="fas fa-wallet text-success"></i> Gross collections</div>
+            </div>
+            <div class="stat-icon-wrapper stat-icon-available"><i class="fas fa-coins"></i></div>
+        </div>
+    </div>
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div>
+                <div class="stat-label">Avg Duration</div>
+                <div class="stat-value text-warning">2h 15m</div>
+                <div class="stat-subtitle text-muted"><i class="far fa-clock text-warning"></i> Per vehicle</div>
+            </div>
+            <div class="stat-icon-wrapper stat-icon-reserved"><i class="fas fa-hourglass-half"></i></div>
+        </div>
+    </div>
+</div>
+
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <h5 class="fw-bold text-dark m-0"><i class="fas fa-chart-bar me-2 text-primary"></i>Visual Performance Trends</h5>
+    <div class="btn-group" role="group">
+        <button type="button" class="btn btn-primary btn-sm active">Today</button>
+        <button type="button" class="btn btn-outline-secondary btn-sm">This Week</button>
+        <button type="button" class="btn btn-outline-secondary btn-sm">This Month</button>
+    </div>
+</div>
+
+
+<div class="row g-4 mb-4">
+
+    <div class="col-12 col-lg-6">
+        <div class="card-custom">
+            <div class="card-header-custom">
+                <h5 class="m-0"><i class="fas fa-chart-line text-primary me-2"></i>Daily Vehicle Entries</h5>
+            </div>
+            <div class="card-body-custom" style="height: 260px;">
+                <canvas id="entriesChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="col-12 col-lg-6">
+        <div class="card-custom">
+            <div class="card-header-custom">
+                <h5 class="m-0"><i class="fas fa-chart-pie text-primary me-2"></i>Parking Occupancy Breakdown</h5>
+            </div>
+            <div class="card-body-custom" style="height: 260px;">
+                <canvas id="occupancyChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="col-12 col-lg-6">
+        <div class="card-custom">
+            <div class="card-header-custom">
+                <h5 class="m-0"><i class="fas fa-dollar-sign text-success me-2"></i>Daily Revenue Collections (₹)</h5>
+            </div>
+            <div class="card-body-custom" style="height: 260px;">
+                <canvas id="revenueChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="col-12 col-lg-6">
+        <div class="card-custom">
+            <div class="card-header-custom">
+                <h5 class="m-0"><i class="fas fa-car-side text-info me-2"></i>Vehicle Type Distribution</h5>
+            </div>
+            <div class="card-body-custom" style="height: 260px;">
+                <canvas id="vehicleTypeChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

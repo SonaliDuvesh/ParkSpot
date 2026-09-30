@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Parking Slots Layout - ParkSpot{% endblock %}
+{% block page_title %}Parking Slots Management{% endblock %}
+{% block breadcrumb %}Parking Slots{% endblock %}
+
+{% block content %}
+
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+    <div>
+        <h4 class="fw-bold text-dark m-0">Parking Slots Management</h4>
+        <span class="text-muted fs-8">Visual grid layout organized by parking zones and vehicle types</span>
+    </div>
+    <div>
+        <button type="button" class="btn btn-success rounded-3 font-semibold fs-8 px-3" data-bs-toggle="modal"
+            data-bs-target="#addSpotModal">
+            <i class="fas fa-plus-circle me-1"></i> + Add Parking Slot
+        </button>
+    </div>
+</div>
+
+
+<div class="card-custom mb-4">
+    <div class="card-body-custom p-3">
+        <div class="row text-center divide-x">
+            <div class="col">
+                <span class="text-muted fs-8 d-block">TOTAL SLOTS</span>
+                <strong class="fs-4 text-dark">{{ total_spots }}</strong>
+            </div>
+            <div class="col border-start">
+                <span class="text-muted fs-8 d-block">AVAILABLE</span>
+                <strong class="fs-4 text-success">🟢 {{ available_spots }}</strong>
+            </div>
+            <div class="col border-start">
+                <span class="text-muted fs-8 d-block">OCCUPIED</span>
+                <strong class="fs-4 text-primary">🔵 {{ occupied_spots }}</strong>
+            </div>
+            <div class="col border-start">
+                <span class="text-muted fs-8 d-block">RESERVED</span>
+                <strong class="fs-4 text-warning">🟠 {{ reserved_spots }}</strong>
+            </div>
+            <div class="col border-start">
+                <span class="text-muted fs-8 d-block">MAINTENANCE</span>
+                <strong class="fs-4 text-danger">🔴 {{ maintenance_spots }}</strong>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% for zone_name, spots in spots_by_zone.items() %}
+<div class="card-custom mb-4">
+    <div class="card-header-custom bg-light">
+        <h5 class="m-0"><i class="fas fa-layer-group text-primary me-2"></i>{{ zone_name }}</h5>
+        <span class="badge bg-secondary rounded-pill fs-8">{{ spots|length }} Parking Bays</span>
+    </div>
+    <div class="card-body-custom">
+        <div class="slot-grid-container">
+            {% for spot in spots %}
+            <div class="slot-card status-{{ spot.status }}"
+                onclick="openSlotDetailModal('{{ spot.id }}', '{{ spot.spot_number }}', '{{ spot.zone }}', '{{ spot.spot_type }}', '{{ spot.status }}', '{{ spot.vehicle_number or '' }}', '{{ spot.owner_name or '' }}', '{{ spot.phone_number or '' }}', '{{ spot.parking_timestamp or '' }}', '{{ spot.duration_str or '' }}')">
+                <div class="d-flex align-items-center justify-content-center gap-1">
+                    <span class="slot-status-dot dot-{{ spot.status }}"></span>
+                    <span class="slot-number">{{ spot.spot_number }}</span>
+                </div>
+                <div class="slot-icon-type">
+                    {% if spot.status == 'A' %}
+                    <i class="fas fa-car"></i>
+                    {% else %}
+                    {% set vtype = spot.vehicle_type or spot.spot_type %}
+                    {% if vtype in ['Bike', 'Motorcycle', 'Motor Bike'] %}
+                    <i class="fas fa-motorcycle"></i>
+                    {% elif vtype in ['Cycle', 'Bicycle'] %}
+                    <i class="fas fa-bicycle"></i>
+                    {% elif vtype == 'EV' %}
+                    <i class="fas fa-charging-station"></i>
+                    {% elif vtype == 'Truck' %}
+                    <i class="fas fa-truck"></i>
+                    {% else %}
+                    <i class="fas fa-car"></i>
+                    {% endif %}
+                    {% endif %}
+                </div>
+                {% if spot.status == 'O' and spot.vehicle_number %}
+                <div class="slot-vehicle-no" title="Parked Vehicle: {{ spot.vehicle_number }}">{{ spot.vehicle_number }}
+                </div>
+                {% elif spot.status == 'R' %}
+                <div class="slot-vehicle-no bg-warning-subtle text-dark border-warning"
+                    title="Reserved for: {{ spot.owner_name or 'VIP Guest' }} ({{ spot.phone_number or '' }})">
+                    <i class="fas fa-bookmark text-warning me-1"></i>{{ (spot.owner_name.split()[0] if spot.owner_name
+                    else 'Reserved') }}
+                </div>
+                {% elif spot.status == 'A' %}
+                <span class="badge bg-success-subtle text-success fs-9 fw-semibold">Available</span>
+                {% elif spot.status == 'M' %}
+                <span class="badge bg-danger-subtle text-danger fs-9 fw-semibold">Repair</span>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

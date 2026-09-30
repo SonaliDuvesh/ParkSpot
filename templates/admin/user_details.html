@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-user"></i> User Details</h2>
+    <a href="{{ url_for('admin_users') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Back to Users
+    </a>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-info-circle"></i> User Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>User ID:</strong> {{ user.id }}</p>
+                        <p><strong>Username:</strong> {{ user.username }}</p>
+                        <p><strong>Email:</strong> {{ user.email }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Address:</strong> {{ user.address if user.address else 'Not provided' }}</p>
+                        <p><strong>Pincode:</strong> {{ user.pincode if user.pincode else 'Not provided' }}</p>
+                        <p><strong>Registration Date:</strong> {{ user.created_at if user.created_at else 'N/A' }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="fas fa-chart-bar"></i> Statistics</h5>
+            </div>
+            <div class="card-body">
+                <div class="stats-item mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span><i class="fas fa-car text-primary"></i> Total Bookings:</span>
+                        <span class="fw-bold">{{ total_bookings }}</span>
+                    </div>
+                </div>
+                <div class="stats-item mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span><i class="fas fa-clock text-warning"></i> Active Bookings:</span>
+                        <span class="fw-bold">{{ active_bookings }}</span>
+                    </div>
+                </div>
+                <div class="stats-item mb-3">
+                    <div class="d-flex justify-content-between">
+                        <span><i class="fas fa-check-circle text-success"></i> Completed:</span>
+                        <span class="fw-bold">{{ completed_bookings }}</span>
+                    </div>
+                </div>
+                <div class="stats-item">
+                    <div class="d-flex justify-content-between">
+                        <span><i class="fas fa-dollar-sign text-info"></i> Total Spent:</span>
+                        <span class="fw-bold">₹{{ "%.2f"|format(total_spent) }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5><i class="fas fa-history"></i> Booking History</h5>
+    </div>
+    <div class="card-body">
+        {% if bookings %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Booking ID</th>
+                            <th>Location</th>
+                            <th>Spot</th>
+                            <th>Parking Time</th>
+                            <th>Leaving Time</th>
+                            <th>Cost</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for booking in bookings %}
+                        <tr>
+                            <td>{{ booking.id }}</td>
+                            <td>
+                                <strong>{{ booking.prime_location_name }}</strong><br>
+                                <small class="text-muted">{{ booking.lot_address }}</small>
+                            </td>
+                            <td>Spot #{{ booking.spot_number }}</td>
+                            <td>
+                                {% if booking.parking_timestamp %}
+                                    {{ booking.parking_timestamp.strftime('%Y-%m-%d %H:%M') if booking.parking_timestamp.strftime else booking.parking_timestamp }}
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if booking.leaving_timestamp %}
+                                    {{ booking.leaving_timestamp.strftime('%Y-%m-%d %H:%M') if booking.leaving_timestamp.strftime else booking.leaving_timestamp }}
+                                {% else %}
+                                    <span class="text-muted">Still parked</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if booking.parking_cost %}
+                                    ${{ "%.2f"|format(booking.parking_cost) }}
+                                {% else %}
+                                    <span class="text-muted">Pending</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if booking.booking_status == 'Active' %}
+                                    <span class="badge bg-success">{{ booking.booking_status }}</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">{{ booking.booking_status }}</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center text-muted py-4">
+                <i class="fas fa-car fa-3x mb-3"></i>
+                <p>This user has no booking history yet.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
+
+{% block styles %}
+<style>
+.stats-item {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #e9ecef;
+}
+.stats-item:last-child {
+    border-bottom: none;
+}
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    border: 1px solid rgba(0, 0, 0, 0.125);
+}
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+}
+</style>
+{% endblock %}
